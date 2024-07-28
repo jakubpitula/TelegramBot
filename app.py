@@ -1,7 +1,7 @@
 import re
 import os
 
-from flask import Flask, request
+from flask import Flask, request, Response
 import telegram
 from telebot.credentials import bot_user_name, URL
 
@@ -63,9 +63,15 @@ def set_webhook():
         return "webhook setup failed"
 
 
-@app.route('/')
-def index():
-    return '.'
+@app.route('/', methods=['POST'])
+def post():
+    if request.method == 'POST':
+        # Access POST data from the request
+        msg = request.get_json()
+
+        print(msg)
+
+        return Response('ok', status=200)
 
 
 if __name__ == '__main__':

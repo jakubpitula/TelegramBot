@@ -1,6 +1,5 @@
 import re
 import os
-from dotenv import load_dotenv
 
 from flask import Flask, request
 import telegram
@@ -9,9 +8,7 @@ from telebot.credentials import bot_user_name, URL
 global bot
 global TOKEN
 
-load_dotenv()
-
-TOKEN = os.getenv('TOKEN')
+TOKEN = os.environ.get('TOKEN')
 bot = telegram.Bot(token=TOKEN)
 
 app = Flask(__name__)

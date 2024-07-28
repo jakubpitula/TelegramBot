@@ -1,4 +1,4 @@
-import re
+import sqlite3
 import os
 
 import requests
@@ -6,53 +6,39 @@ from flask import Flask, request, Response
 import telegram
 from telebot.credentials import bot_user_name, URL
 
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import DeclarativeBase
+
 global bot
 global TOKEN
 
 TOKEN = os.environ.get('TOKEN')
 bot = telegram.Bot(token=TOKEN)
 
+
+class Base(DeclarativeBase):
+    pass
+
+
+db = SQLAlchemy(model_class=Base)
+
 app = Flask(__name__)
 
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project.db"
+# initialize the app with the extension
+db.init_app(app)
 
-# @app.route('/{}'.format(TOKEN), methods=['POST'])
-# def respond():
-#     # retrieve the message in JSON and then transform it to Telegram object
-#     update = telegram.Update.de_json(request.get_json(force=True), bot)
-#
-#     chat_id = update.message.chat.id
-#     msg_id = update.message.message_id
-#
-#     # Telegram understands UTF-8, so encode text for unicode compatibility
-#     text = update.message.text.encode('utf-8').decode()
-#     # for debugging purposes only
-#     print("got text message :", text)
-#     # the first time you chat with the bot AKA the welcoming message
-#     if text == "/start":
-#         # print the welcoming message
-#         bot_welcome = """
-#        Welcome to coolAvatar bot, the bot is using the service from http://avatars.adorable.io/ to generate cool looking avatars based on the name you enter so please enter a name and the bot will reply with an avatar for your name.
-#        """
-#         # send the welcoming message
-#         bot.sendMessage(chat_id=chat_id, text=bot_welcome, reply_to_message_id=msg_id)
-#
-#
-#     else:
-#         try:
-#             # clear the message we got from any non alphabets
-#             text = re.sub(r"\W", "_", text)
-#             # create the api link for the avatar based on http://avatars.adorable.io/
-#             url = "https://api.adorable.io/avatars/285/{}.png".format(text.strip())
-#             # reply with a photo to the name the user sent,
-#             # note that you can send photos by url and telegram will fetch it for you
-#             bot.sendPhoto(chat_id=chat_id, photo=url, reply_to_message_id=msg_id)
-#         except Exception:
-#             # if things went wrong
-#             bot.sendMessage(chat_id=chat_id,
-#                             text="There was a problem in the name you used, please enter different name",
-#                             reply_to_message_id=msg_id)
-#
-#     return 'ok'
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    chatId = db.Column(db.String(80), unique=True, nullable=False)
+    businessCards = db.relationship('BusinessCard', backref='user', lazy=True)
+
+
+class BusinessCard(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    placeId = db.Column(db.String(80), unique=True, nullable=False)
+
+
 
 
 @app.route('/set_webhook', methods=['GET', 'POST'])
@@ -77,6 +63,14 @@ def post_example():
             chat_id = msg['message']['chat']['id']
             text = msg['message']['text']  # This gets the text from the msg
 
+            if not User.query.filter_by(chat_id=chat_id).first():
+                new_user = User(chat_id=chat_id)
+                db.session.add(new_user)
+                db.session.commit()
+                print("User saved to database")
+            else:
+                print("User already exists in the database")
+      
             if text == "are you alive?":
 
                 url = f'https://api.telegram.org/bot{TOKEN}/sendMessage'  # Calling the telegram API to reply the message
@@ -99,4 +93,6 @@ def post_example():
 
 
 if __name__ == '__main__':
-    app.run(threaded=True)
+    with app.app_context():
+        db.create_all()
+    app.run(threaded=True, debug=True)

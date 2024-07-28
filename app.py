@@ -60,7 +60,7 @@ def set_webhook():
     s = bot.setWebhook('{URL}{HOOK}'.format(URL=URL, HOOK=TOKEN))
     # something to let us know things work
     if s:
-        return "webhook setup ok"
+        return f"webhook setup ok {TOKEN}"
     else:
         return "webhook setup failed"
 

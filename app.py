@@ -61,6 +61,15 @@ def post_example():
             chat_id = msg['message']['chat']['id']
             text = msg['message']['text']  # This gets the text from the msg
 
+            url = f'https://api.telegram.org/bot{TOKEN}/sendMessage'  # Calling the telegram API to reply the message
+
+            payload = {
+                'chat_id': chat_id,
+                'text': "you said: " + text
+            }
+
+            r = requests.post(url, json=payload)
+
             if not User.query.filter_by(chatId=chat_id).first():
                 new_user = User(chatId=chat_id)
                 db.session.add(new_user)

@@ -84,8 +84,9 @@ def post_example():
                     return Response('ok', status=200)
                 else:
                     return Response('Failed to send message to Telegram', status=500)
-        except:
+        except Exception as e:
             print("No text found")
+            print("exception ", e)
 
         return Response('ok', status=200)
 

@@ -61,8 +61,8 @@ def post_example():
             chat_id = msg['message']['chat']['id']
             text = msg['message']['text']  # This gets the text from the msg
 
-            if not User.query.filter_by(chat_id=chat_id).first():
-                new_user = User(chat_id=chat_id)
+            if not User.query.filter_by(chatId=chat_id).first():
+                new_user = User(chatId=chat_id)
                 db.session.add(new_user)
                 db.session.commit()
                 print("User saved to database")

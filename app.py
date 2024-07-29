@@ -24,7 +24,7 @@ db = SQLAlchemy(model_class=Base)
 
 app = Flask(__name__)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = f"mysql://{os.environ.get('MYSQL_USER')}:{os.environ.get('MYSQL_PASSWORD')}@{os.environ.get('MYSQL_HOST')}:{os.environ.get('MYSQL_PORT')}/{os.environ.get('MYSQL_DATABASE')}"
 # initialize the app with the extension
 db.init_app(app)
 
@@ -37,7 +37,6 @@ class User(db.Model):
 class BusinessCard(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     placeId = db.Column(db.String(80), unique=True, nullable=False)
-
 
 
 

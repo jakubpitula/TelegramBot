@@ -19,23 +19,23 @@ class Base(DeclarativeBase):
     pass
 
 
-# db = SQLAlchemy(model_class=Base)
+db = SQLAlchemy(model_class=Base)
 
 app = Flask(__name__)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = f"mysql://{os.environ.get('MYSQL_USER')}:{os.environ.get('MYSQL_PASSWORD')}@{os.environ.get('MYSQL_HOST')}:{os.environ.get('MYSQL_PORT')}/{os.environ.get('MYSQL_DATABASE')}"
 # initialize the app with the extension
-# db.init_app(app)
+db.init_app(app)
 
-# class User(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     chatId = db.Column(db.String(80), unique=True, nullable=False)
-#     # businessCards = db.relationship('BusinessCard', backref='user', lazy=True)
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    chatId = db.Column(db.String(80), unique=True, nullable=False)
+    # businessCards = db.relationship('BusinessCard', backref='user', lazy=True)
 
 
-# class BusinessCard(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     placeId = db.Column(db.String(80), unique=True, nullable=False)
+class BusinessCard(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    placeId = db.Column(db.String(80), unique=True, nullable=False)
 
 
 
@@ -70,13 +70,13 @@ def post_example():
 
             r = requests.post(url, json=payload)
 
-            # if not User.query.filter_by(chatId=chat_id).first():
-            #     new_user = User(chatId=chat_id)
-            #     db.session.add(new_user)
-            #     db.session.commit()
-            #     print("User saved to database")
-            # else:
-            #     print("User already exists in the database")
+            if not User.query.filter_by(chatId=chat_id).first():
+                new_user = User(chatId=chat_id)
+                db.session.add(new_user)
+                db.session.commit()
+                print("User saved to database")
+            else:
+                print("User already exists in the database")
       
             if text == "are you alive?":
 
@@ -101,6 +101,6 @@ def post_example():
 
 
 if __name__ == '__main__':
-    # with app.app_context():
-    #     db.create_all()
+    with app.app_context():
+        db.create_all()
     app.run(threaded=True)

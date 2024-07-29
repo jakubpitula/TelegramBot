@@ -30,7 +30,7 @@ db.init_app(app)
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     chatId = db.Column(db.String(80), unique=True, nullable=False)
-    businessCards = db.relationship('BusinessCard', backref='user', lazy=True)
+    # businessCards = db.relationship('BusinessCard', backref='user', lazy=True)
 
 
 class BusinessCard(db.Model):

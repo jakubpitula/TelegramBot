@@ -76,11 +76,10 @@ def post_example():
                 db.session.add(new_user)
                 db.session.commit()
                 print("User saved to database")
+                return Response('User saved to database', status=200)
             else:
                 print("User already exists in the database")
-
-            if r.status_code != 200:
-                return Response('Failed to send message to Telegram', status=500)
+                return Response('User already exists in the database', status=200)
             
         except Exception as e:
             print("No text found")

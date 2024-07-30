@@ -54,6 +54,7 @@ def post_example():
         # Access POST data from the request
         msg = request.get_json()
         print("Message: ", msg)
+        print("db is ", db)
 
         # Trying to parse message
         try:

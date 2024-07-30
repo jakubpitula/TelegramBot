@@ -70,30 +70,18 @@ def post_example():
             }
 
             r = requests.post(url, json=payload)
+            
+            if not User.query.filter_by(chatId=chat_id).first():
+                new_user = User(chatId=chat_id)
+                db.session.add(new_user)
+                db.session.commit()
+                print("User saved to database")
+            else:
+                print("User already exists in the database")
 
-            # if not User.query.filter_by(chatId=chat_id).first():
-            #     new_user = User(chatId=chat_id)
-            #     db.session.add(new_user)
-            #     db.session.commit()
-            #     print("User saved to database")
-            # else:
-            #     print("User already exists in the database")
-      
-            if text == "are you alive?":
-
-                url = f'https://api.telegram.org/bot{TOKEN}/sendMessage'  # Calling the telegram API to reply the message
-
-                payload = {
-                    'chat_id': chat_id,
-                    'text': "yes, I am alive"
-                }
-
-                r = requests.post(url, json=payload)
-
-                if r.status_code == 200:
-                    return Response('ok', status=200)
-                else:
-                    return Response('Failed to send message to Telegram', status=500)
+            if r.status_code != 200:
+                return Response('Failed to send message to Telegram', status=500)
+            
         except Exception as e:
             print("No text found")
             print("exception ", e)
